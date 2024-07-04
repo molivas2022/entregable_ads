@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    build: ./db
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  api:
+    build: ./rest_server
+    container_name: server
+    environment:
+      - MONGO_URI=mongodb://db:27017
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  client:
+    build: ./rest_client
+    container_name: client
+    depends_on:
+      - api
+
+volumes:
+  mongo_data:
