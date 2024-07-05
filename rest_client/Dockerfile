@@ -1,4 +1,4 @@
-# Dockerfile para grpc client
+# Dockerfile para rest client
 FROM python:3
 
 WORKDIR /app
@@ -7,10 +7,6 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY app.py app.py
 
-EXPOSE 50051
-
-CMD ["python", "client.py"]
-
-
+CMD ["python", "app.py"]

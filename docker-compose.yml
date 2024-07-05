@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   database:
     image: mongo:latest
@@ -7,8 +8,6 @@ services:
       - "27017:27017"
     restart: always
     volumes:
-      # Scripts de seeding
-      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
       # Volumenes
       - mongodb:/data/db
       - mongoconfig:/data/configdb
@@ -20,11 +19,41 @@ services:
       context: ./grpc_server/python
       dockerfile: Dockerfile
     container_name: grpc_server
+    environment:
+      - MONGO_URI=mongodb://database:27017
     hostname: grpc_server
     ports:
       - "50051:50051"
     depends_on:
       - database
+    networks:
+      - default_network
+
+  rest_server:
+    build: 
+      context: ./rest_server
+      dockerfile: Dockerfile
+    container_name: rest_server
+    environment:
+      - MONGO_URI=mongodb://database:27017
+      - WEBSOCKET_SERVER_URL=http://ws_server:5001/notify
+    hostname: rest_server
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+      - ws_server
+    networks:
+      - default_network
+
+  ws_server:
+    build:
+      context: ./ws_server
+      dockerfile: Dockerfile
+    container_name: ws_server
+    hostname: ws_server
+    ports:
+      - "5001:5001"
     networks:
       - default_network
 
@@ -42,6 +71,29 @@ services:
       - default_network
     command: tail -f /dev/null
 
+  rest_client:
+    build: 
+      context: ./rest_client
+      dockerfile: Dockerfile
+    container_name: rest_client
+    hostname: rest_client
+    depends_on:
+      - rest_server
+    networks:
+      - default_network
+    command: tail -f /dev/null
+    
+  ws_client:
+    build:
+      context: ./ws_client
+      dockerfile: Dockerfile
+    container_name: ws_client
+    hostname: ws_client
+    depends_on:
+      - ws_server
+    networks:
+      - default_network
+
 volumes:
   mongodb:
   mongoconfig:
@@ -50,6 +102,5 @@ volumes:
 networks:
   default_network:
     driver: bridge
-
 
 

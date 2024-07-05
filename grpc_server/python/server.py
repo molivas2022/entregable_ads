@@ -3,7 +3,7 @@
 from concurrent import futures
 from datetime import datetime
 import logging
-
+import os
 import grpc
 from google.protobuf.timestamp_pb2 import Timestamp
 import protos_pb2
@@ -43,8 +43,8 @@ class SendMessageService(protos_pb2_grpc.SendMessageServiceServicer):
 def serve():
 
     logging.info("Conectando a la base de datos")
-    client = MongoClient("mongodb://database:27017/")
-    db = client.mydatabase
+    client = MongoClient(os.getenv('MONGO_URI'))
+    db = client.message_db
 
     logging.info("Inicializando servidor gRPC")
     port = "50051"

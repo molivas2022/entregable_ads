@@ -13,7 +13,7 @@ def run():
     logging.info("Intentando acceder al stub...")
     stub = protos_pb2_grpc.SendMessageServiceStub(channel)
     logging.info("Intentando enviar mensaje...")
-    response = stub.SendMessage(protos_pb2.Message(text="Hola!",system="gRPC",status=0))
+    response = stub.SendMessage(protos_pb2.Message(text="Hola, soy grpc!",system="GRPC",status=0))
 
     logging.info("Cliente envió un mensaje")
     logging.info(f"Cliente recbió: {response.response}")
