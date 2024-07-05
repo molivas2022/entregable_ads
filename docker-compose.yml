@@ -1,17 +1,37 @@
 version: '3.8'
-
 services:
-  db:
-    build: ./db
+  database:
+    image: mongo:latest
+    hostname: database
     container_name: mongodb
     ports:
       - "27017:27017"
+    restart: always
     volumes:
-      - mongo_data:/data/db
+      # Scripts de seeding
+      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
+      # Volumenes
+      - mongodb:/data/db
+      - mongoconfig:/data/configdb
+    networks:
+      - default_network
 
-  restserver:
-    build: ./restserver
-    container_name: restserver
+  grpc_server:
+    build:
+      context: ./grpc_server/python
+      dockerfile: Dockerfile
+    container_name: grpc_server
+    hostname: grpc_server
+    ports:
+      - "50051:50051"
+    depends_on:
+      - database
+    networks:
+      - default_network
+
+  rest_server:
+    build: ./rest_server
+    container_name: rest_server
     environment:
       - MONGO_URI=mongodb://db:27017
       - WEBSOCKET_SERVER_URL=http://wsserver:5001/notify
@@ -19,25 +39,55 @@ services:
       - "5000:5000"
     depends_on:
       - db
-      - wsserver
+      - ws_server
+    networks:
+      - default_network
 
-  restclient:
-    build: ./restclient
-    container_name: restclient
+  grpc_client:
+    build:
+      context: ./grpc_client/python
+      dockerfile: Dockerfile
+    container_name: grpc_client
+    hostname: grpc_client
+    ports:
+      - "50052:50051"
     depends_on:
-      - restserver
+      - grpc_server
+    networks:
+      - default_network
+    command: tail -f /dev/null
+
+  rest_client:
+    build: ./rest_client
+    container_name: rest_client
+    depends_on:
+      - rest_server
+    networks:
+      - default_network
   
-  wsserver:
-    build: ./wsserver
-    container_name: wsserver
+  ws_server:
+    build: ./ws_server
+    container_name: ws_server
     ports:
       - "5001:5001"
+    networks:
+      - default_network
   
-  wsclient:
-    build: ./wsclient
-    container_name: wsclient
+  ws_client:
+    build: ./ws_client
+    container_name: ws_client
     depends_on:
-      - wsserver
+      - ws_server
+    networks:
+      - default_network
 
 volumes:
-  mongo_data:
+  mongodb:
+  mongoconfig:
+  
+
+networks:
+  default_network:
+    driver: bridge
+
+

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package protos;
+
+import "google/protobuf/timestamp.proto";
+
+// El único servicio del programa
+service SendMessageService {
+    rpc SendMessage (Message) returns (MessageResponse) {}
+}
+
+// El mensaje en todo su esplendor
+message Message {
+    string text = 1;
+    google.protobuf.Timestamp datetime = 2;
+    string system = 3;
+    int32 status = 4;
+}
+
+// Respuesta del mensaje
+message MessageResponse {
+    string response = 1;
+}
