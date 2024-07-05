@@ -8,8 +8,6 @@ services:
       - "27017:27017"
     restart: always
     volumes:
-      # Scripts de seeding
-      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
       # Volumenes
       - mongodb:/data/db
       - mongoconfig:/data/configdb
