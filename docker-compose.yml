@@ -28,6 +28,20 @@ services:
     networks:
       - default_network
 
+  rest_server:
+    build: ./rest_server
+    container_name: rest_server
+    environment:
+      - MONGO_URI=mongodb://db:27017
+      - WEBSOCKET_SERVER_URL=http://wsserver:5001/notify
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+      - ws_server
+    networks:
+      - default_network
+
   grpc_client:
     build:
       context: ./grpc_client/python
@@ -41,6 +55,30 @@ services:
     networks:
       - default_network
     command: tail -f /dev/null
+
+  rest_client:
+    build: ./rest_client
+    container_name: rest_client
+    depends_on:
+      - rest_server
+    networks:
+      - default_network
+  
+  ws_server:
+    build: ./ws_server
+    container_name: ws_server
+    ports:
+      - "5001:5001"
+    networks:
+      - default_network
+  
+  ws_client:
+    build: ./ws_client
+    container_name: ws_client
+    depends_on:
+      - ws_server
+    networks:
+      - default_network
 
 volumes:
   mongodb:
