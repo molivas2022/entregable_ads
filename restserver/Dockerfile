@@ -8,6 +8,6 @@ RUN pip install -r requirements.txt
 
 COPY app.py app.py
 
-ENV MONGO_URI="mongodb://db:5000"
+ENV MONGO_URI="mongodb://db:27017"
 
 CMD ["python", "app.py"]
