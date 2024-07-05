@@ -1,0 +1,55 @@
+services:
+  database:
+    image: mongo:latest
+    hostname: database
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      # Scripts de seeding
+      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
+      # Volumenes
+      - mongodb:/data/db
+      - mongoconfig:/data/configdb
+    networks:
+      - default_network
+
+  grpc_server:
+    build:
+      context: ./grpc_server/python
+      dockerfile: Dockerfile
+    container_name: grpc_server
+    hostname: grpc_server
+    ports:
+      - "50051:50051"
+    depends_on:
+      - database
+    networks:
+      - default_network
+
+  grpc_client:
+    build:
+      context: ./grpc_client/python
+      dockerfile: Dockerfile
+    container_name: grpc_client
+    hostname: grpc_client
+    ports:
+      - "50052:50051"
+    depends_on:
+      - grpc_server
+    networks:
+      - default_network
+    command: tail -f /dev/null
+
+volumes:
+  mongodb:
+  mongoconfig:
+  
+
+networks:
+  default_network:
+    driver: bridge
+
+
+
