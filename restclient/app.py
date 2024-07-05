@@ -1,9 +1,13 @@
-# client.py
 import requests
-import json
+import logging
+import time
 
-url = 'http://restserver:5000/message'
-message = {'message': 'Hello, World!'}
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+_logger = logging.getLogger(__name__)
 
-response = requests.post(url, json=message)
-print(response.json())
+while (True):
+    url = 'http://restserver:5000/message'
+    message = {'message': 'Hello, World!'}
+    response = requests.post(url, json=message)
+    _logger.info(response.json())
+    time.sleep(5)

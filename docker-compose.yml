@@ -14,16 +14,30 @@ services:
     container_name: restserver
     environment:
       - MONGO_URI=mongodb://db:27017
+      - WEBSOCKET_SERVER_URL=http://wsserver:5001/notify
     ports:
       - "5000:5000"
     depends_on:
       - db
+      - wsserver
 
   restclient:
     build: ./restclient
     container_name: restclient
     depends_on:
       - restserver
+  
+  wsserver:
+    build: ./wsserver
+    container_name: wsserver
+    ports:
+      - "5001:5001"
+  
+  wsclient:
+    build: ./wsclient
+    container_name: wsclient
+    depends_on:
+      - wsserver
 
 volumes:
   mongo_data:

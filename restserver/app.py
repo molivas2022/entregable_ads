@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 import os
+import requests
 
 app = Flask(__name__)
 
@@ -14,6 +15,11 @@ def add_message():
     if not content or 'message' not in content:
         return jsonify({'error': 'Message content is missing'}), 400
     db.messages.insert_one({'message': content['message']})
+    
+    # Notify WebSocket server
+    websocket_server_url = os.getenv('WEBSOCKET_SERVER_URL')
+    requests.post(websocket_server_url, json={'message': content['message']})
+    
     return jsonify({'status': 'Message received'}), 201
 
 if __name__ == '__main__':
