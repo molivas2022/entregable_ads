@@ -5,25 +5,25 @@ services:
     build: ./db
     container_name: mongodb
     ports:
-      - "27017:27017"
+      - "5000:5000"
     volumes:
       - mongo_data:/data/db
 
-  api:
-    build: ./rest_server
-    container_name: server
+  restserver:
+    build: ./restserver
+    container_name: restserver
     environment:
-      - MONGO_URI=mongodb://db:27017
+      - MONGO_URI=mongodb://db:5000
     ports:
       - "5000:5000"
     depends_on:
       - db
 
-  client:
-    build: ./rest_client
-    container_name: client
+  restclient:
+    build: ./restclient
+    container_name: restclient
     depends_on:
-      - api
+      - restserver
 
 volumes:
   mongo_data:

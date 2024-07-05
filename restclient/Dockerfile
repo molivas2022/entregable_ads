@@ -1,11 +1,11 @@
 # Dockerfile for Client
 FROM python:3.9-slim
 
-WORKDIR /app
+WORKDIR /rest_client
 
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-COPY client.py client.py
+COPY app.py app.py
 
-CMD ["python", "client.py"]
+CMD ["python", "app.py"]
