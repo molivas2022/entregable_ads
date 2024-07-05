@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 import os
+import logging
 import requests
 
 app = Flask(__name__)
@@ -12,15 +13,25 @@ db = client.message_db
 @app.route('/message', methods=['POST'])
 def add_message():
     content = request.json
-    if not content or 'message' not in content:
-        return jsonify({'error': 'Message content is missing'}), 400
-    db.messages.insert_one({'message': content['message']})
+
+    if content is None:
+        logging.error('Invalid JSON received')
+        return jsonify({'error': 'Invalid JSON'}), 400
+    else:
+        logging.info(f'Received JSON content: {content}')
     
-    # Notify WebSocket server
+    logging.info("Insertando a la base de datos")
+    # Como estamos insertando antes de hacer POST, pymongo cambia nuestro diccionario mutable
+    # y eso causa problemas en la serialización al mandar a websocket, por eso usamos copy().
+    db.messages.insert_one(content.copy())
+    logging.info(f'Received JSON content after insertion: {content}')
+
+    logging.info("Notificando al servidor WebSocket")
     websocket_server_url = os.getenv('WEBSOCKET_SERVER_URL')
-    requests.post(websocket_server_url, json={'message': content['message']})
+    requests.post(websocket_server_url, json=content)
     
     return jsonify({'status': 'Message received'}), 201
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     app.run(host='0.0.0.0', port=5000)

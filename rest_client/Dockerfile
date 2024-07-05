@@ -1,10 +1,11 @@
-# Dockerfile for Client
-FROM python:3.9-slim
+# Dockerfile para rest client
+FROM python:3
 
-WORKDIR /rest_client
+WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py app.py
 

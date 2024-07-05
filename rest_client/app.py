@@ -1,13 +1,17 @@
 import requests
 import logging
-import time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 _logger = logging.getLogger(__name__)
 
-while (True):
-    url = 'http://restserver:5000/message'
-    message = {'message': 'Hello, World!'}
+
+def run():
+    url = 'http://rest_server:5000/message'
+    message = {"text": "Hola soy yo, rest!", "system": "REST", "status": 0}
     response = requests.post(url, json=message)
     _logger.info(response.json())
-    time.sleep(5)
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    _logger = logging.getLogger(__name__)
+    run()

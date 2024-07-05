@@ -19,6 +19,8 @@ services:
       context: ./grpc_server/python
       dockerfile: Dockerfile
     container_name: grpc_server
+    environment:
+      - MONGO_URI=mongodb://database:27017
     hostname: grpc_server
     ports:
       - "50051:50051"
@@ -28,16 +30,30 @@ services:
       - default_network
 
   rest_server:
-    build: ./rest_server
+    build: 
+      context: ./rest_server
+      dockerfile: Dockerfile
     container_name: rest_server
     environment:
-      - MONGO_URI=mongodb://db:27017
-      - WEBSOCKET_SERVER_URL=http://wsserver:5001/notify
+      - MONGO_URI=mongodb://database:27017
+      - WEBSOCKET_SERVER_URL=http://ws_server:5001/notify
+    hostname: rest_server
     ports:
       - "5000:5000"
     depends_on:
-      - db
+      - database
       - ws_server
+    networks:
+      - default_network
+
+  ws_server:
+    build:
+      context: ./ws_server
+      dockerfile: Dockerfile
+    container_name: ws_server
+    hostname: ws_server
+    ports:
+      - "5001:5001"
     networks:
       - default_network
 
@@ -56,24 +72,23 @@ services:
     command: tail -f /dev/null
 
   rest_client:
-    build: ./rest_client
+    build: 
+      context: ./rest_client
+      dockerfile: Dockerfile
     container_name: rest_client
+    hostname: rest_client
     depends_on:
       - rest_server
     networks:
       - default_network
-  
-  ws_server:
-    build: ./ws_server
-    container_name: ws_server
-    ports:
-      - "5001:5001"
-    networks:
-      - default_network
-  
+    command: tail -f /dev/null
+    
   ws_client:
-    build: ./ws_client
+    build:
+      context: ./ws_client
+      dockerfile: Dockerfile
     container_name: ws_client
+    hostname: ws_client
     depends_on:
       - ws_server
     networks:

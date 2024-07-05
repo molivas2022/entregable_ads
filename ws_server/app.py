@@ -7,7 +7,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 @app.route('/notify', methods=['POST'])
 def notify():
     content = request.json
-    socketio.emit('message', {'message': content['message']})
+    socketio.emit('message', content)
     return '', 200
 
 if __name__ == '__main__':

@@ -1,14 +1,14 @@
-# Dockerfile for API
-FROM python:3.9-slim
+# Dockerfile para rest server
+FROM python:3
 
-WORKDIR /rest_server
+WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py app.py
 
-ENV MONGO_URI="mongodb://db:27017"
-ENV WEBSOCKET_SERVER_URL="http://wsserver:5001/notify"
+EXPOSE 5000
 
 CMD ["python", "app.py"]

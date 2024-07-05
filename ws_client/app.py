@@ -9,18 +9,18 @@ _logger = logging.getLogger(__name__)
 
 @sio.event
 def connect():
-    _logger.info('Connection established')
+    _logger.info('Conexión establecida')
 
 @sio.event
 def disconnect():
-    _logger.info('Disconnected from server')
+    _logger.info('Desconectado del servidor')
 
 @sio.on('message')
 def on_message(data):
-    _logger.info("Received a new message: {}".format(data['message']))
+    _logger.info(f"Se ingresó un registro mediante '{data["system"]}', con el mensaje: '{data["text"]}'")
 
 if __name__ == "__main__":
-    websocket_server_url = "http://wsserver:5001"
+    websocket_server_url = "http://ws_server:5001"
 
     connected = False
     while not connected:
