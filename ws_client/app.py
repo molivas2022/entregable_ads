@@ -17,7 +17,7 @@ def disconnect():
 
 @sio.on('message')
 def on_message(data):
-    _logger.info(f"Se ingresó un registro mediante '{data["system"]}', con el mensaje: '{data["text"]}'")
+    _logger.info(data['message'])
 
 if __name__ == "__main__":
     websocket_server_url = "http://ws_server:5001"

@@ -31,8 +31,8 @@ services:
 
   rest_server:
     build: 
-      context: ./rest_server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: rest_server/Dockerfile
     container_name: rest_server
     environment:
       - MONGO_URI=mongodb://database:27017
