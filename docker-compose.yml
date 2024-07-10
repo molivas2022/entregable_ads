@@ -16,11 +16,12 @@ services:
 
   grpc_server:
     build:
-      context: ./grpc_server/python
-      dockerfile: Dockerfile
+      context: . 
+      dockerfile: grpc_server/python/Dockerfile
     container_name: grpc_server
     environment:
       - MONGO_URI=mongodb://database:27017
+      - WEBSOCKET_SERVER_URL=http://ws_server:5001/notify
     hostname: grpc_server
     ports:
       - "50051:50051"

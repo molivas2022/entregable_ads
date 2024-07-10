@@ -3,11 +3,13 @@ FROM python:3
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY grpc_server/python/requirements.txt .
+COPY /mongo_connection/mongo_requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt -r mongo_requirements.txt
 
-COPY . .
+COPY grpc_server/python/ .
+COPY /mongo_connection/mongo_connection.py .
 
 EXPOSE 50051
 

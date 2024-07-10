@@ -10,11 +10,12 @@ import protos_pb2
 import protos_pb2_grpc
 from google.protobuf.json_format import MessageToDict
 from pymongo import MongoClient
+from mongo_connection import Connection
 
 
 class SendMessageService(protos_pb2_grpc.SendMessageServiceServicer):
-    def __init__(self, db):
-        self.db = db;
+    def __init__(self, connection):
+        self.connection = connection;
     def SendMessage(self, request, context):
         # Generamos el timestamp
         current_time = datetime.utcnow()
@@ -24,18 +25,17 @@ class SendMessageService(protos_pb2_grpc.SendMessageServiceServicer):
         logging.info(f"Mensaje Recibido: {request.text}")
         logging.info(f"Status: {request.status}")
 
-        final_msg = protos_pb2.Message(
-                text=request.text,
-                datetime=timestamp,
-                system=request.system,
-                status=request.status
-        )
+        #final_msg = protos_pb2.Message(
+        #        text=request.text,
+        #        datetime=timestamp,
+        #        system=request.system,
+        #        status=request.status
+        #)
 
         # Insertamos a la base de datos
-        logging.info(final_msg)
-        message_dict = MessageToDict(final_msg)
-        logging.info(message_dict)
-        self.db.messages.insert_one(message_dict)
+        #message_dict = MessageToDict(request)
+        logging.info(request)
+        self.connection.insert_into_database(request.text, "GRPC")
 
         return protos_pb2.MessageResponse(response="Mensaje recibido")
 
@@ -43,14 +43,15 @@ class SendMessageService(protos_pb2_grpc.SendMessageServiceServicer):
 def serve():
 
     logging.info("Conectando a la base de datos")
-    client = MongoClient(os.getenv('MONGO_URI'))
-    db = client.message_db
+    #client = MongoClient(os.getenv('MONGO_URI'))
+    client = Connection()
+    #db = client.message_db
 
     logging.info("Inicializando servidor gRPC")
     port = "50051"
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
-    protos_pb2_grpc.add_SendMessageServiceServicer_to_server(SendMessageService(db), server)
+    protos_pb2_grpc.add_SendMessageServiceServicer_to_server(SendMessageService(client), server)
 
     server.add_insecure_port(f"[::]:{port}")
     server.start()
