@@ -1,15 +1,16 @@
-FROM python:3.9-slim
+FROM python:3
 
 WORKDIR /app
 
-COPY app.py /app/
-COPY requirements.txt /app/
+COPY /rabbitmq_server/requirements.txt .
+COPY /mongo_connection/mongo_requirements.txt .
 
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt -r mongo_requirements.txt
 
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
+COPY /rabbitmq_server/app.py .
+COPY /mongo_connection/mongo_connection.py .
 
-EXPOSE 5000
 
-CMD ["flask", "run"]
+EXPOSE 5002
+
+CMD ["python", "app.py"]

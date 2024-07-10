@@ -47,6 +47,37 @@ services:
     networks:
       - default_network
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - default_network
+
+  rabbitmq_server:
+    build:
+      context: .
+      dockerfile: rabbitmq_server/Dockerfile
+    container_name: rabbitmq_server
+    hostname: rabbitmq_server
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - MONGO_URI=mongodb://database:27017
+      - WEBSOCKET_SERVER_URL=http://ws_server:5001/notify
+    ports: 
+      - "5002:5002"
+    depends_on:
+      - database
+      - rabbitmq
+    networks:
+      - default_network
+
   ws_server:
     build:
       context: ./ws_server
@@ -64,8 +95,6 @@ services:
       dockerfile: Dockerfile
     container_name: grpc_client
     hostname: grpc_client
-    ports:
-      - "50052:50051"
     depends_on:
       - grpc_server
     networks:
@@ -80,6 +109,23 @@ services:
     hostname: rest_client
     depends_on:
       - rest_server
+    networks:
+      - default_network
+    command: tail -f /dev/null
+
+  rabbitmq_client:
+    build:
+      context: ./rabbitmq_client
+      dockerfile: Dockerfile
+    container_name: rabbitmq_client
+    hostname: rabbitmq_client
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+    depends_on:
+      - rabbitmq_server
     networks:
       - default_network
     command: tail -f /dev/null

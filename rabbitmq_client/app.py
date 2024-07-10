@@ -1,35 +1,41 @@
 import pika
 import logging
+import sys
+import os
 import time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 _logger = logging.getLogger(__name__)
 
-rabbitmq_host = 'rabbitmq_server'
-rabbitmq_port = 5672
-rabbitmq_user = 'guest'
-rabbitmq_password = 'guest'
+def run(message):
+    time.sleep(1)
+    rabbitmq_host = os.getenv('RABBITMQ_HOST')
+    rabbitmq_port = os.getenv('RABBITMQ_PORT')
+    rabbitmq_user = os.getenv('RABBITMQ_USER')
+    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD')
 
-credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
-parameters = pika.ConnectionParameters(
-    rabbitmq_host,
-    rabbitmq_port,
-    '/',
-    credentials
-)
+    credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
+    parameters = pika.ConnectionParameters(
+        rabbitmq_host,
+        int(rabbitmq_port),
+        '/',
+        credentials
+    )
 
-time.sleep(10)
+    connection = pika.BlockingConnection(parameters)
+    channel = connection.channel()
 
-connection = pika.BlockingConnection(parameters)
-channel = connection.channel()
+    queue_name = 'test_queue'
+    channel.queue_declare(queue=queue_name)
 
-queue_name = 'test_queue'
-channel.queue_declare(queue=queue_name)
-
-while True:
-    message = 'Hello, World!'
     channel.basic_publish(exchange='', routing_key=queue_name, body=message)
     _logger.info(f"Mensaje enviado: {message}")
-    time.sleep(5)
 
-connection.close()
+    connection.close()
+
+if __name__ == "__main__":
+    message = sys.argv[1]
+
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    _logger = logging.getLogger(__name__)
+    run(message)

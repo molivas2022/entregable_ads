@@ -9,8 +9,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-EXPOSE 50051
-
-CMD ["python", "client.py"]
-
 
